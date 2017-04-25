@@ -1,0 +1,1 @@
+python guess.py --class_type age --model_type inception --model_dir /home/elyha7/programms/docker_work/chekpoint_age --filename /home/elyha7/programms/docker_work/samples/selfi1_6.jpg --target /home/elyha7/programms/docker_work/age.csv
