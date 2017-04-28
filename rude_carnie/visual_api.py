@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-
+import time
 #Face structure class
 #(just example how it may look you may use your class)
 #(but so you will need to correct the code below)
@@ -10,7 +10,8 @@ import cv2
 #img - cropped face img
 #cords-tuple of two tuples- cords of upper lef corner and bottom right corner of bounding box
 class Face_info(object):
-    def __init__(self,age,gender,img,cords,time):
+    def __init__(self,age=None,gender=None,img=None,cords=None,time=None,name=None):
+        self.name = name
         self.age = age
         self.gender = gender
         self.img = img
@@ -24,27 +25,25 @@ class Face_info(object):
 #     color_rand -Bool if generate random colors for each bounding box
 #     color = 3-tuple (R,G,B)(may be BGR) working when color_rand = True
 #     thick - int number, thickness of box sides
-def mark_on_image(img,Faces,color_rand = True,color = None, thick = 2):
-	#making copy of image to draw on and not affect the original
+def generate_colors():
+    colors=[]
+    for i in range(10):
+        color = tuple(np.random.randint(0,256,size =3))
+        colors.append(color)
+    return colors
+def mark_on_image(img,Faces,colors, thick = 2):
+    #making copy of image to draw on and not affect the original
     img_to_ret = np.array(img)
     #put generated colors here
-    colors = []
     #main cycle
-    for Face in Faces:
-      #support points to put rect(b. box) on
-
-      pt1 = Face.cords[0][::-1]
-      pt2 = Face.cords[1][::-1]
-      #generate colors
-      if color_rand ==True and color == type(None):
-          color = tuple(np.random.randint(0,256,size =3))
-      colors.append(color)
-      #draw on copy rect for a current face in cycle
-      cv2.rectangle(img_to_ret,pt1,pt2,color,thick)
-    return img_to_ret,colors
-
-#add white sheet(canvas) to the right of original image
-#and write faces info on it
+    for i,Face in enumerate(Faces):
+        print(colors[i])
+        #support points to put rect(b. box) on
+        pt1 = Face.cords[0][::-1]
+        pt2 = Face.cords[1][::-1]
+        #generate colors
+        cv2.rectangle(img_to_ret,pt1,pt2,colors[i],thick)
+    return img_to_ret
 def add_info_field(img,faces,colors):
     #making canvas
     canv_shape = (img.shape[0],400,3)
@@ -55,7 +54,7 @@ def add_info_field(img,faces,colors):
     pos = [10,10]
     #main cycle
     for face,color in zip(faces,colors):
-        #print color,face.age
+        print (color,face.age)
         #sign point before text
         patch = np.ones((5,5,3),dtype =np.uint8)*color
         #constructing text
@@ -75,7 +74,7 @@ def add_info_field(img,faces,colors):
         cv2.putText(canvas,full_text,org =(pos[0]+5,pos[1]+2),fontFace =font,
                     fontScale =1,
                     color = color,
-                    thickness=1,
+                    thickness=1)
          
         #moving position down           )
         pos[1]+=20
@@ -89,3 +88,11 @@ def add_info_field(img,faces,colors):
     img_to_ret[:,img.shape[1]:img.shape[1]+canvas.shape[1],:] = canvas
     #print img_to_ret.shape
     return img_to_ret
+def make_classes(images,boxes):
+    classes=[]
+    for i in range(len(images)):
+        a= Face_info(img=images[i],cords=boxes[i])
+        a.time=time.ctime()
+        classes.append(a)
+
+    return classes
