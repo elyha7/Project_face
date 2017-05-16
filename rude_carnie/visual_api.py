@@ -25,6 +25,17 @@ class Face_info(object):
 #     color_rand -Bool if generate random colors for each bounding box
 #     color = 3-tuple (R,G,B)(may be BGR) working when color_rand = True
 #     thick - int number, thickness of box sides
+def make_frame(bytes,stream):    
+    bytes+=stream.read(1024)
+    #print bytes
+    a = bytes.find('\xff\xd8')
+    b = bytes.find('\xff\xd9')
+    if a!=-1 and b!=-1:
+        jpg = bytes[a:b+2]
+        bytes= bytes[b+2:]
+        i = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8),cv2.CV_LOAD_IMAGE_COLOR)
+        return i
+    return 0   
 def generate_colors():
     colors=[]
     for i in range(10):
